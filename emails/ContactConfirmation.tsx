@@ -105,11 +105,16 @@ export default function ContactConfirmation({ name, requirement }: Props) {
             </Text>
             <Text style={{ color: colors.text, fontSize: 15, lineHeight: 1.8, margin: 0 }}>
               Advisory Desk:{' '}
-              <Link href="mailto:advisory@mentormyboard.com" style={{ color: colors.primary }}>
-                advisory@mentormyboard.com
+              <Link href="mailto:info@mentormyboard.com" style={{ color: colors.primary }}>
+                info@mentormyboard.com
               </Link>
               <br />
-              Office: Financial District, Mumbai, India
+              Contact:{' '}
+              <Link href="tel:7304145928" style={{ color: colors.primary }}>
+                7304145928
+              </Link>
+              <br />
+              Office: Office No.207, Building 3, Sector III, MBP Road, Millenium Business Park, Mahape, Navi Mumbai, Maharashtra 400710
             </Text>
 
             <Hr style={{ borderColor: colors.border, margin: '32px 0' }} />
