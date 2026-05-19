@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { fadeInUp, revealTransition, staggerContainer } from '@/lib/animations';
+import { fadeInUp, staggerFromLeft, staggerFromRight } from '@/lib/animations';
 
 export default function About() {
   return (
@@ -11,7 +11,7 @@ export default function About() {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: '-100px' }}
-          variants={revealTransition}
+          variants={staggerFromLeft}
           className="relative group"
         >
           <div className="absolute inset-0 bg-secondary/10 translate-x-4 translate-y-4 rounded-lg -z-10 transition-transform duration-500 group-hover:translate-x-6 group-hover:translate-y-6" />
@@ -35,7 +35,7 @@ export default function About() {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: '-100px' }}
-          variants={staggerContainer}
+          variants={staggerFromRight}
         >
           <motion.h2 variants={fadeInUp} className="font-serif text-4xl md:text-5xl text-primary mb-8 leading-tight">
             A Governance-First <br /> Advisory Ecosystem

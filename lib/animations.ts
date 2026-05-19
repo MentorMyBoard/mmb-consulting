@@ -27,6 +27,26 @@ export const scaleIn: Variants = {
   visible: { opacity: 1, scale: 1, transition: { duration: 0.7, ease: EASE } },
 };
 
+/** Container that staggers children AND slides in from the left */
+export const staggerFromLeft: Variants = {
+  hidden: { opacity: 0, x: -50 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: { duration: 0.9, ease: EASE, staggerChildren: 0.12, delayChildren: 0.15 },
+  },
+};
+
+/** Container that staggers children AND slides in from the right */
+export const staggerFromRight: Variants = {
+  hidden: { opacity: 0, x: 50 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: { duration: 0.9, ease: EASE, staggerChildren: 0.12, delayChildren: 0.15 },
+  },
+};
+
 export const staggerContainer: Variants = {
   hidden: { opacity: 0 },
   visible: {
@@ -56,14 +76,4 @@ export const revealTransition: Variants = {
 export const lineReveal: Variants = {
   hidden: { scaleX: 0, originX: 0 },
   visible: { scaleX: 1, transition: { duration: 0.8, ease: EASE } },
-};
-
-/** Use on a container — children should use fadeInUp or scaleIn */
-export const cardHover = {
-  rest: { y: 0, boxShadow: '0 4px 24px rgba(0,0,0,0.08)' },
-  hover: {
-    y: -10,
-    boxShadow: '0 20px 60px rgba(0,0,0,0.15)',
-    transition: { duration: 0.35, ease: EASE },
-  },
 };

@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { fadeInUp, slideInLeft } from '@/lib/animations';
 import { founders } from '@/content/founders';
 
 export default function Leadership() {
@@ -8,9 +9,10 @@ export default function Leadership() {
     <section id="leadership" className="py-32 px-8 md:px-16 bg-surface">
       <div className="max-w-7xl mx-auto">
         <motion.h2
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial="hidden"
+          whileInView="visible"
           viewport={{ once: true }}
+          variants={fadeInUp}
           className="font-serif text-4xl md:text-5xl text-primary text-center mb-24"
         >
           Our Founders
@@ -20,10 +22,10 @@ export default function Leadership() {
           {founders.map((founder, idx) => (
             <motion.div
               key={founder.id}
-              initial={{ opacity: 0, x: idx === 0 ? -50 : 50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8, delay: idx * 0.2 }}
+              initial={{ opacity: 0, x: idx === 0 ? -70 : 70, y: 30 }}
+              whileInView={{ opacity: 1, x: 0, y: 0 }}
+              viewport={{ once: true, margin: '-80px' }}
+              transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: idx * 0.15 }}
               className="flex flex-col gap-8 group"
             >
               <div className="overflow-hidden rounded-t-full border-b-4 border-secondary/0 group-hover:border-secondary transition-all duration-700 w-full max-w-[350px] mx-auto md:mx-0 aspect-[3/4]">

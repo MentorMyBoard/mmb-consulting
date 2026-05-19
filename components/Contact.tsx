@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { slideInLeft, slideInRight } from '@/lib/animations';
 import { siteConfig } from '@/content/site';
 import ContactForm from './ContactForm';
 
@@ -15,9 +16,10 @@ export default function Contact() {
     <section id="contact" className="py-32 px-8 md:px-16 bg-surface-container-lowest">
       <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-20">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial="hidden"
+          whileInView="visible"
           viewport={{ once: true }}
+          variants={slideInLeft}
         >
           <h2 className="font-serif text-4xl md:text-5xl text-primary mb-6">Initiate a Strategic Dialogue</h2>
           <p className="text-lg text-on-surface-variant mb-12 font-light max-w-md">
@@ -50,7 +52,14 @@ export default function Contact() {
           </div>
         </motion.div>
 
-        <ContactForm />
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={slideInRight}
+        >
+          <ContactForm />
+        </motion.div>
       </div>
     </section>
   );
