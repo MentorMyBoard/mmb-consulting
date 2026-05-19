@@ -3,8 +3,10 @@ import Hero from '@/components/Hero';
 import About from '@/components/About';
 import Services from '@/components/Services';
 import Leadership from '@/components/Leadership';
+import AdvisoryBoard from '@/components/AdvisoryBoard';
 import Testimonial from '@/components/Testimonial';
 import Advisory from '@/components/Advisory';
+import Partners from '@/components/Partners';
 import Contact from '@/components/Contact';
 import Footer from '@/components/Footer';
 import { ClientComponents } from '@/components/ClientComponents';
@@ -27,8 +29,10 @@ export default function Home() {
         <About />
         <Services />
         <Leadership />
+        <AdvisoryBoard />
         <Testimonial />
         <Advisory />
+        <Partners />
         <Contact />
       </main>
 

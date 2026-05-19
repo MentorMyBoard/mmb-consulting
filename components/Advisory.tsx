@@ -19,9 +19,9 @@ const mandateSteps = [
   },
   {
     number: '03',
-    title: 'Director Placement',
+    title: 'IPO Readiness',
     description:
-      'We identify, assess, and onboard independent directors and advisors whose expertise precisely complements your strategic objectives.',
+      'End-to-end preparation for public listing — governance structuring, board constitution, DRHP readiness, SEBI compliance, and investor-relations frameworks.',
   },
   {
     number: '04',

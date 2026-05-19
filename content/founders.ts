@@ -35,3 +35,68 @@ export const founders: Founder[] = [
     imageUrl: '/neha-shah.png',
   },
 ];
+
+export type AdvisoryMember = {
+  id: string;
+  name: string;
+  title: string;
+  years: string;
+  expertise: string;
+  imageUrl: string;
+};
+
+/**
+ * Advisory board member profiles.
+ * Photos go in public/advisory/ — filenames match the imageUrl values below.
+ * To add a new member, append an object to this array.
+ */
+export const advisoryBoard: AdvisoryMember[] = [
+  {
+    id: 'rajnickant-patel',
+    name: 'Rajnickant Patel',
+    title: 'Former MD & CEO, BSE & ICEX | Mentor, RegTech',
+    years: '3+ Decades',
+    expertise: 'Business Advisory & Scaling',
+    imageUrl: '/advisory/rajnickant-patel.jpg',
+  },
+  {
+    id: 'nilesh-vikamsey',
+    name: 'Nilesh Vikamsey',
+    title: 'Past President, ICAI | Senior Partner, KKC & Associates LLP',
+    years: '3+ Decades',
+    expertise: 'Statutory Audit & Risk Management',
+    imageUrl: '/advisory/nilesh-vikamsey.jpg',
+  },
+  {
+    id: 'amisha-vora',
+    name: 'CA Amisha Vora',
+    title: 'Managing Director, Prabhudas Liladher Pvt. Ltd.',
+    years: '3+ Decades',
+    expertise: 'Finance & Investment Banking',
+    imageUrl: '/advisory/amisha-vora.jpg',
+  },
+  {
+    id: 'sanjay-jain',
+    name: 'Sanjay K Jain',
+    title: 'Author | MD, T.T. Ltd.',
+    years: '3+ Decades',
+    expertise: 'Risk Management, Strategy & Business Growth',
+    imageUrl: '/advisory/sanjay-jain.jpg',
+  },
+  {
+    id: 'sridhar-ramachandran',
+    name: 'Sridhar Ramachandran',
+    title: 'ESG, Finance & Governance Expert | Asia & Africa',
+    years: '3+ Decades',
+    expertise: 'Financial Management across Asia & Africa',
+    imageUrl: '/advisory/sridhar-ramachandran.jpg',
+  },
+  {
+    id: 'sankara-ramnath',
+    name: 'Sankara Ramnath',
+    title: 'Author | Certified Mentor Coach | Founder & CEO, U2K Consulting',
+    years: '3+ Decades',
+    expertise: 'Finance, Strategy & Cash Flow Management',
+    imageUrl: '/advisory/sankara-ramnath.jpg',
+  },
+];
