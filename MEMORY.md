@@ -1,0 +1,2 @@
+- [Project context](memory/project_mentormyboard.md) — MentorMyBoard full-stack Next.js site; production-ready, deployment target Vercel
+- [User profile](memory/user_divya.md) — Divya Momaya, founder of MentorMyBoard; governance/advisory consulting

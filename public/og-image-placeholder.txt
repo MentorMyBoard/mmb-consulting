@@ -1,0 +1,10 @@
+Replace this file with a real og-image.jpg (1200x630px).
+
+Recommended design:
+- Background: #0C183A (deep navy)
+- Logo: MentorMyBoard in Playfair Display, white
+- Tagline: Strategic Governance Excellence in gold (#C6A15B)
+- Subtle grain texture overlay
+
+Tools: Figma, Canva, or use @vercel/og to generate it dynamically.
+See: https://vercel.com/docs/functions/og-image-generation
