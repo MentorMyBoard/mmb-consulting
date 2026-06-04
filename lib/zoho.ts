@@ -61,29 +61,28 @@ function splitName(fullName: string): { First_Name?: string; Last_Name: string }
   return { First_Name: parts.join(' '), Last_Name };
 }
 
-async function upsertLead(lead: Record<string, unknown>): Promise<void> {
+async function createLead(lead: Record<string, unknown>): Promise<void> {
   const token = await getAccessToken();
   if (!token) return; // Zoho not configured — skip silently
 
   try {
-    const res = await fetch(`${ZOHO_API_BASE}/Leads/upsert`, {
+    const res = await fetch(`${ZOHO_API_BASE}/Leads`, {
       method: 'POST',
       headers: {
         Authorization: `Zoho-oauthtoken ${token}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        data: [lead],
-        duplicate_check_fields: ['Email'],
-      }),
+      body: JSON.stringify({ data: [lead] }),
     });
 
+    const body = await res.json().catch(() => null);
     if (!res.ok) {
-      const body = await res.text().catch(() => '');
-      console.error('[zoho] upsert failed:', res.status, body);
+      console.error('[zoho] create lead failed:', res.status, body);
+    } else {
+      console.log('[zoho] lead created:', body?.data?.[0]?.details?.id ?? 'unknown id');
     }
   } catch (err) {
-    console.error('[zoho] upsert error:', err);
+    console.error('[zoho] create lead error:', err);
   }
 }
 
@@ -113,11 +112,11 @@ export async function pushContactToZoho(data: {
   if (data.phone) lead.Phone = data.phone;
   if (descriptionParts.length) lead.Description = descriptionParts.join('\n\n');
 
-  await upsertLead(lead);
+  await createLead(lead);
 }
 
 export async function pushNewsletterToZoho(email: string): Promise<void> {
-  await upsertLead({
+  await createLead({
     Last_Name: 'Subscriber',
     Email: email,
     Company: 'Not specified',
