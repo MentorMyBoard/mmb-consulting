@@ -9,6 +9,7 @@ import { newsletterSchema } from '@/lib/validations';
 import { rateLimit, getClientIp } from '@/lib/rate-limit';
 import { connectToDatabase } from '@/lib/mongodb';
 import { Newsletter } from '@/models/Newsletter';
+import { pushNewsletterToZoho } from '@/lib/zoho';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -41,6 +42,11 @@ export async function POST(req: NextRequest) {
       { email: parsed.email },
       { $set: { unsubscribed: false }, $setOnInsert: { source: 'website-footer' } },
       { upsert: true, new: true },
+    );
+
+    // Best-effort Zoho push — does not affect the response
+    pushNewsletterToZoho(parsed.email).catch((e) =>
+      console.error('[newsletter] Zoho push error:', e),
     );
 
     return NextResponse.json(

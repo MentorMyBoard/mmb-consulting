@@ -61,7 +61,15 @@ export default function ContactForm() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(result.data),
       });
-      const data = await res.json();
+
+      let data: { ok?: boolean; error?: string; message?: string; fieldErrors?: FieldErrors } = {};
+      try {
+        data = await res.json();
+      } catch {
+        // Server returned non-JSON (HTML error page / timeout)
+        toast.error(`Server error (${res.status}). Please try again in a moment.`, { id: toastId });
+        return;
+      }
 
       if (!res.ok) {
         if (data.fieldErrors) setErrors(data.fieldErrors);
@@ -77,7 +85,7 @@ export default function ContactForm() {
       setErrors({});
     } catch (err) {
       console.error('[contact-form]', err);
-      toast.error('Network error. Please check your connection and try again.', { id: toastId });
+      toast.error('Unable to reach the server. Please check your connection and try again.', { id: toastId });
     } finally {
       setSubmitting(false);
     }

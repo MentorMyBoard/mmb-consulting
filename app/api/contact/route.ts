@@ -23,6 +23,7 @@ import { verifyTurnstile } from '@/lib/turnstile';
 import { connectToDatabase } from '@/lib/mongodb';
 import { Contact } from '@/models/Contact';
 import { sendContactEmails } from '@/lib/email';
+import { pushContactToZoho } from '@/lib/zoho';
 
 export const runtime = 'nodejs'; // Mongoose needs Node, not Edge
 export const dynamic = 'force-dynamic';
@@ -108,6 +109,9 @@ export async function POST(req: NextRequest) {
       ...clean,
       submittedAt: savedSubmission?.createdAt ?? new Date(),
     });
+
+    // 9. Zoho CRM — best-effort, runs in parallel with flag update
+    pushContactToZoho(clean).catch((e) => console.error('[contact] Zoho push error:', e));
 
     // Best-effort: update email flags on the saved record if we have one
     if (savedSubmission) {
