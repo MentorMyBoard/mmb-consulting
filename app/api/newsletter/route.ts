@@ -44,10 +44,12 @@ export async function POST(req: NextRequest) {
       { upsert: true, new: true },
     );
 
-    // Best-effort Zoho push — does not affect the response
-    pushNewsletterToZoho(parsed.email).catch((e) =>
-      console.error('[newsletter] Zoho push error:', e),
-    );
+    // Awaited so Vercel doesn't terminate before the Zoho request completes
+    try {
+      await pushNewsletterToZoho(parsed.email);
+    } catch (e) {
+      console.error('[newsletter] Zoho push error:', e);
+    }
 
     return NextResponse.json(
       { ok: true, message: "You're subscribed. Welcome aboard." },

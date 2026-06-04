@@ -110,8 +110,12 @@ export async function POST(req: NextRequest) {
       submittedAt: savedSubmission?.createdAt ?? new Date(),
     });
 
-    // 9. Zoho CRM — best-effort, runs in parallel with flag update
-    pushContactToZoho(clean).catch((e) => console.error('[contact] Zoho push error:', e));
+    // 9. Zoho CRM — awaited so Vercel doesn't kill the function before the request completes
+    try {
+      await pushContactToZoho(clean);
+    } catch (e) {
+      console.error('[contact] Zoho push error:', e);
+    }
 
     // Best-effort: update email flags on the saved record if we have one
     if (savedSubmission) {
