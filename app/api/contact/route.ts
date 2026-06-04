@@ -145,10 +145,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const errMsg = err instanceof Error ? err.message : String(err);
-    console.error('[contact] unexpected error:', errMsg, err instanceof Error ? err.stack : '');
+    console.error('[contact] unexpected error:', err);
     return NextResponse.json(
-      { ok: false, error: `Debug: ${errMsg}` },
+      { ok: false, error: 'Something went wrong on our end. Please try again shortly.' },
       { status: 500 },
     );
   }
