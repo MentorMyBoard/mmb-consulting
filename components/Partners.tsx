@@ -33,7 +33,7 @@ export default function Partners() {
           {track.map((partner, i) => (
             <div
               key={`${partner.id}-${i}`}
-              className="flex-shrink-0 w-36 h-16 flex items-center justify-center opacity-50 hover:opacity-100 grayscale hover:grayscale-0 transition-all duration-500"
+              className="flex-shrink-0 w-36 h-16 flex items-center justify-center opacity-75 hover:opacity-100 transition-all duration-500"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img

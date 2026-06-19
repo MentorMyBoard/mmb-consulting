@@ -40,16 +40,28 @@ export default function Navbar() {
 
           {/* Desktop nav */}
           <nav className="hidden md:flex gap-8 items-center" aria-label="Primary">
-            {siteConfig.navigation.map((item) => (
-              <a
-                key={item.href}
-                href={item.href}
-                className="text-sm uppercase tracking-[0.15em] text-primary-fixed-dim hover:text-secondary relative group transition-colors duration-300"
-              >
-                {item.label}
-                <span className="absolute -bottom-1 left-0 w-0 h-px bg-secondary transition-all duration-300 group-hover:w-full" />
-              </a>
-            ))}
+            {siteConfig.navigation.map((item) =>
+              item.label === 'Explore MMB' ? (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  className="text-sm uppercase tracking-[0.15em] text-secondary hover:text-white relative group transition-colors duration-300 flex items-center gap-1.5"
+                >
+                  <span className="material-symbols-outlined text-sm" aria-hidden="true">grid_view</span>
+                  {item.label}
+                  <span className="absolute -bottom-1 left-0 w-0 h-px bg-secondary transition-all duration-300 group-hover:w-full" />
+                </a>
+              ) : (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  className="text-sm uppercase tracking-[0.15em] text-primary-fixed-dim hover:text-secondary relative group transition-colors duration-300"
+                >
+                  {item.label}
+                  <span className="absolute -bottom-1 left-0 w-0 h-px bg-secondary transition-all duration-300 group-hover:w-full" />
+                </a>
+              )
+            )}
           </nav>
 
           <div className="flex items-center gap-3">
@@ -103,8 +115,15 @@ export default function Navbar() {
                   initial={{ opacity: 0, x: 24 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: idx * 0.07 + 0.1, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                  className="block font-serif text-4xl text-on-primary hover:text-secondary transition-colors duration-300 py-3"
+                  className={`block font-serif text-4xl transition-colors duration-300 py-3 ${
+                    item.label === 'Explore MMB'
+                      ? 'text-secondary hover:text-white flex items-center gap-3'
+                      : 'text-on-primary hover:text-secondary'
+                  }`}
                 >
+                  {item.label === 'Explore MMB' && (
+                    <span className="material-symbols-outlined text-3xl" aria-hidden="true">grid_view</span>
+                  )}
                   {item.label}
                 </motion.a>
               ))}

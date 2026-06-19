@@ -39,7 +39,7 @@ export default function AdvisoryBoard() {
                 <img
                   src={member.imageUrl}
                   alt={`Portrait of ${member.name}`}
-                  className="w-full h-full object-cover grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500"
+                  className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105"
                   loading="lazy"
                 />
               </div>

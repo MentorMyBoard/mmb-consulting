@@ -8,6 +8,7 @@ import Testimonial from '@/components/Testimonial';
 import Advisory from '@/components/Advisory';
 import Partners from '@/components/Partners';
 import Contact from '@/components/Contact';
+import ExploreMMB from '@/components/ExploreMMB';
 import Footer from '@/components/Footer';
 import { ClientComponents } from '@/components/ClientComponents';
 
@@ -34,6 +35,7 @@ export default function Home() {
         <Advisory />
         <Partners />
         <Contact />
+        <ExploreMMB />
       </main>
 
       <Footer />
