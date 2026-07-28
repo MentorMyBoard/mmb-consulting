@@ -7,10 +7,12 @@
  */
 import { NextResponse, type NextRequest } from 'next/server';
 
-const PROTECTED_PREFIX = '/admin';
+const PROTECTED_PREFIXES = ['/admin', '/api/admin'];
 
 export function proxy(req: NextRequest) {
-  if (!req.nextUrl.pathname.startsWith(PROTECTED_PREFIX)) return NextResponse.next();
+  if (!PROTECTED_PREFIXES.some((prefix) => req.nextUrl.pathname.startsWith(prefix))) {
+    return NextResponse.next();
+  }
 
   const expectedUser = process.env.ADMIN_USERNAME;
   const expectedPass = process.env.ADMIN_PASSWORD;
@@ -44,5 +46,5 @@ export function proxy(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*'],
+  matcher: ['/admin/:path*', '/api/admin/:path*'],
 };

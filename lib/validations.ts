@@ -72,3 +72,101 @@ export const newsletterSchema = z.object({
 });
 
 export type NewsletterInput = z.infer<typeof newsletterSchema>;
+
+export const popupPositions = [
+  'left-top',
+  'left-bottom',
+  'right-top',
+  'right-bottom',
+  'center-top',
+  'center-bottom',
+] as const;
+
+/** data:image/<type>;base64,<payload> — produced by client-side canvas compression. */
+const imageDataUriRegex = /^data:image\/(png|jpeg|jpg|webp);base64,/;
+
+/** ~2MB of base64 — comfortably under MongoDB's 16MB document cap. */
+const MAX_IMAGE_DATA_LENGTH = 2_800_000;
+
+const popupBaseSchema = z.object({
+  label: z.string().trim().min(1, 'Internal label is required').max(100, 'Label is too long'),
+
+  orientation: z.enum(['portrait', 'landscape'], {
+    errorMap: () => ({ message: 'Select an image orientation' }),
+  }),
+
+  width: z.coerce
+    .number({ invalid_type_error: 'Width is required' })
+    .int('Width must be a whole number')
+    .min(50, 'Width must be at least 50px')
+    .max(1600, 'Width must be 1600px or less'),
+
+  height: z.coerce
+    .number({ invalid_type_error: 'Height is required' })
+    .int('Height must be a whole number')
+    .min(50, 'Height must be at least 50px')
+    .max(1600, 'Height must be 1600px or less'),
+
+  position: z.enum(popupPositions, {
+    errorMap: () => ({ message: 'Select where the popup appears on screen' }),
+  }),
+
+  buttonText: z.string().trim().max(50, 'Button text is too long').optional().or(z.literal('')),
+  buttonUrl: z.string().trim().max(500, 'Button URL is too long').optional().or(z.literal('')),
+
+  active: z.boolean().default(true),
+});
+
+function checkButtonAndUrl(
+  data: { buttonText?: string; buttonUrl?: string },
+  ctx: z.RefinementCtx,
+) {
+  const hasText = !!data.buttonText;
+  const hasUrl = !!data.buttonUrl;
+
+  if (hasText !== hasUrl) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Button text and button URL must both be set, or both left empty',
+      path: ['buttonUrl'],
+    });
+  }
+
+  if (hasUrl && !/^https?:\/\//i.test(data.buttonUrl!)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Button URL must start with http:// or https://',
+      path: ['buttonUrl'],
+    });
+  }
+}
+
+export const popupCreateSchema = popupBaseSchema
+  .extend({
+    imageData: z
+      .string()
+      .min(1, 'Please upload an image')
+      .regex(imageDataUriRegex, 'Invalid image format')
+      .refine(
+        (val) => val.length <= MAX_IMAGE_DATA_LENGTH,
+        'Image is too large even after compression — please use a smaller image',
+      ),
+  })
+  .superRefine(checkButtonAndUrl);
+
+export const popupUpdateSchema = popupBaseSchema
+  .partial()
+  .extend({
+    imageData: z
+      .string()
+      .regex(imageDataUriRegex, 'Invalid image format')
+      .refine(
+        (val) => val.length <= MAX_IMAGE_DATA_LENGTH,
+        'Image is too large even after compression — please use a smaller image',
+      )
+      .optional(),
+  })
+  .superRefine(checkButtonAndUrl);
+
+export type PopupCreateInput = z.infer<typeof popupCreateSchema>;
+export type PopupUpdateInput = z.infer<typeof popupUpdateSchema>;
