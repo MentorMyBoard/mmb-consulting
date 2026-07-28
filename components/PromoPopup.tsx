@@ -131,9 +131,11 @@ export default function PromoPopup() {
 
                     {popup.buttonText && popup.buttonUrl && (
                       <div className="relative mt-auto p-3 flex justify-center bg-gradient-to-t from-black/70 to-transparent pt-10">
-                        <Button as="a" href={popup.buttonUrl} size="sm" target="_blank" rel="noopener noreferrer">
-                          {popup.buttonText}
-                        </Button>
+                        <div className="border-2 border-white">
+                          <Button as="a" href={popup.buttonUrl} size="sm" target="_blank" rel="noopener noreferrer">
+                            {popup.buttonText}
+                          </Button>
+                        </div>
                       </div>
                     )}
                   </div>
