@@ -11,6 +11,7 @@ import { ZodError } from 'zod';
 import { popupUpdateSchema } from '@/lib/validations';
 import { connectToDatabase } from '@/lib/mongodb';
 import { Popup } from '@/models/Popup';
+import { errorDetail } from '@/lib/errors';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -56,7 +57,10 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       );
     }
     console.error('[admin/popups] failed to update popup:', err);
-    return NextResponse.json({ ok: false, error: 'Something went wrong.' }, { status: 500 });
+    return NextResponse.json(
+      { ok: false, error: `Something went wrong: ${errorDetail(err)}` },
+      { status: 500 },
+    );
   }
 }
 
@@ -78,6 +82,9 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
     return NextResponse.json({ ok: true }, { status: 200 });
   } catch (err) {
     console.error('[admin/popups] failed to delete popup:', err);
-    return NextResponse.json({ ok: false, error: 'Something went wrong.' }, { status: 500 });
+    return NextResponse.json(
+      { ok: false, error: `Something went wrong: ${errorDetail(err)}` },
+      { status: 500 },
+    );
   }
 }

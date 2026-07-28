@@ -10,6 +10,7 @@ import { ZodError } from 'zod';
 import { popupCreateSchema } from '@/lib/validations';
 import { connectToDatabase } from '@/lib/mongodb';
 import { Popup } from '@/models/Popup';
+import { errorDetail } from '@/lib/errors';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -21,7 +22,10 @@ export async function GET() {
     return NextResponse.json({ ok: true, popups }, { status: 200 });
   } catch (err) {
     console.error('[admin/popups] failed to list popups:', err);
-    return NextResponse.json({ ok: false, error: 'Failed to load popups.' }, { status: 500 });
+    return NextResponse.json(
+      { ok: false, error: `Failed to load popups: ${errorDetail(err)}` },
+      { status: 500 },
+    );
   }
 }
 
@@ -50,6 +54,9 @@ export async function POST(req: NextRequest) {
       );
     }
     console.error('[admin/popups] failed to create popup:', err);
-    return NextResponse.json({ ok: false, error: 'Something went wrong.' }, { status: 500 });
+    return NextResponse.json(
+      { ok: false, error: `Something went wrong: ${errorDetail(err)}` },
+      { status: 500 },
+    );
   }
 }
