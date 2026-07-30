@@ -14,7 +14,13 @@ const POSITION_LABELS: Record<PopupPosition, string> = {
   'center-bottom': 'Centre Bottom',
 };
 
-export function PopupManager({ initialPopups }: { initialPopups: PopupDTO[] }) {
+export function PopupManager({
+  initialPopups,
+  clickCounts,
+}: {
+  initialPopups: PopupDTO[];
+  clickCounts: Record<string, number>;
+}) {
   const [popups, setPopups] = useState<PopupDTO[]>(initialPopups);
   const [editing, setEditing] = useState<'new' | PopupDTO | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -106,6 +112,7 @@ export function PopupManager({ initialPopups }: { initialPopups: PopupDTO[] }) {
                   <Th>Position</Th>
                   <Th>Size</Th>
                   <Th>Button</Th>
+                  <Th>Clicks</Th>
                   <Th>Status</Th>
                   <Th>Actions</Th>
                 </tr>
@@ -129,6 +136,7 @@ export function PopupManager({ initialPopups }: { initialPopups: PopupDTO[] }) {
                       {popup.width}×{popup.height}px
                     </Td>
                     <Td>{popup.buttonText ? `"${popup.buttonText}"` : '—'}</Td>
+                    <Td>{(clickCounts[popup._id] ?? 0).toLocaleString()}</Td>
                     <Td>
                       <span
                         className={`inline-block px-2 py-1 text-xs rounded ${

@@ -5,50 +5,25 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { Button } from '@/components/ui/Button';
 import type { PopupDTO, PopupPosition } from '@/lib/types';
 
-const DISMISSED_KEY = 'mmb_dismissed_popups';
 const EASE = [0.16, 1, 0.3, 1] as const;
 
-function getDismissedIds(): string[] {
-  try {
-    const raw = sessionStorage.getItem(DISMISSED_KEY);
-    return raw ? (JSON.parse(raw) as string[]) : [];
-  } catch {
-    return [];
-  }
-}
-
-function addDismissedId(id: string) {
-  try {
-    const ids = getDismissedIds();
-    if (!ids.includes(id)) sessionStorage.setItem(DISMISSED_KEY, JSON.stringify([...ids, id]));
-  } catch {
-    // sessionStorage unavailable (private mode, etc.) — dismissal just won't persist.
-  }
+/** Fire-and-forget — a failed ping should never affect the visitor's experience. */
+function trackEvent(type: 'page_view' | 'popup_click', popupId?: string) {
+  fetch('/api/analytics/track', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ type, popupId }),
+  }).catch(() => {});
 }
 
 /** Container layout + slide-in origin per screen position. */
-const POSITION_CONFIG: Record<
-  PopupPosition,
-  { containerClass: string; itemsAlign: string; initial: { x?: number; y?: number } }
-> = {
-  'left-top': { containerClass: 'top-24 left-4 items-start', itemsAlign: 'items-start', initial: { x: -80 } },
-  'left-bottom': { containerClass: 'bottom-4 left-4 items-start', itemsAlign: 'items-start', initial: { x: -80 } },
-  'right-top': { containerClass: 'top-24 right-4 items-end', itemsAlign: 'items-end', initial: { x: 80 } },
-  'right-bottom': {
-    containerClass: 'bottom-28 right-4 items-end',
-    itemsAlign: 'items-end',
-    initial: { x: 80 },
-  },
-  'center-top': {
-    containerClass: 'top-24 left-1/2 -translate-x-1/2 items-center',
-    itemsAlign: 'items-center',
-    initial: { y: -80 },
-  },
-  'center-bottom': {
-    containerClass: 'bottom-4 left-1/2 -translate-x-1/2 items-center',
-    itemsAlign: 'items-center',
-    initial: { y: 80 },
-  },
+const POSITION_CONFIG: Record<PopupPosition, { containerClass: string; initial: { x?: number; y?: number } }> = {
+  'left-top': { containerClass: 'top-24 left-4 items-start', initial: { x: -80 } },
+  'left-bottom': { containerClass: 'bottom-4 left-4 items-start', initial: { x: -80 } },
+  'right-top': { containerClass: 'top-24 right-4 items-end', initial: { x: 80 } },
+  'right-bottom': { containerClass: 'bottom-28 right-4 items-end', initial: { x: 80 } },
+  'center-top': { containerClass: 'top-24 left-1/2 -translate-x-1/2 items-center', initial: { y: -80 } },
+  'center-bottom': { containerClass: 'bottom-4 left-1/2 -translate-x-1/2 items-center', initial: { y: 80 } },
 };
 
 const POSITIONS: PopupPosition[] = [
@@ -66,12 +41,13 @@ export default function PromoPopup() {
   useEffect(() => {
     let cancelled = false;
 
+    // No dismissal persistence by design — every fresh page load (including a
+    // reload right after closing one) should show active popups again.
     fetch('/api/popups')
       .then((res) => res.json())
       .then((json) => {
         if (cancelled || !json.ok) return;
-        const dismissed = new Set(getDismissedIds());
-        setPopups((json.popups as PopupDTO[]).filter((p) => !dismissed.has(p._id)));
+        setPopups(json.popups as PopupDTO[]);
       })
       .catch(() => {
         // Silently no-op — a failed fetch just means no promo popups this visit.
@@ -83,7 +59,6 @@ export default function PromoPopup() {
   }, []);
 
   function dismiss(id: string) {
-    addDismissedId(id);
     setPopups((prev) => prev.filter((p) => p._id !== id));
   }
 
@@ -100,7 +75,10 @@ export default function PromoPopup() {
         return (
           <div
             key={position}
-            className={`fixed z-[150] flex flex-col gap-4 pointer-events-none ${containerClass}`}
+            // z-[250] — deliberately above LoadingScreen's z-[200] so promo
+            // popups are visible immediately, not hidden behind the brand
+            // loader while it waits on the page's images/fonts to finish.
+            className={`fixed z-[250] flex flex-col gap-4 pointer-events-none ${containerClass}`}
           >
             <AnimatePresence>
               {group.map((popup) => (
@@ -116,23 +94,47 @@ export default function PromoPopup() {
                   <button
                     onClick={() => dismiss(popup._id)}
                     aria-label="Dismiss popup"
-                    className="absolute top-2 right-2 z-10 w-7 h-7 rounded-full bg-black/60 text-white flex items-center justify-center text-sm hover:bg-black/80 transition-colors"
+                    className="absolute top-2 right-2 z-20 w-7 h-7 rounded-full bg-black/60 text-white flex items-center justify-center text-sm hover:bg-black/80 transition-colors"
                   >
                     ×
                   </button>
 
                   <div className="relative w-full h-full flex flex-col">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={popup.imageData}
-                      alt={popup.label}
-                      className="w-full h-full object-cover absolute inset-0"
-                    />
+                    {/* Image doubles as a click-through target — a separate,
+                        non-nested anchor from the button below, so visitors
+                        have two independent ways to follow the same link. */}
+                    {popup.buttonUrl ? (
+                      <a
+                        href={popup.buttonUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={popup.label}
+                        onClick={() => trackEvent('popup_click', popup._id)}
+                        className="absolute inset-0"
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={popup.imageData} alt={popup.label} className="w-full h-full object-cover" />
+                      </a>
+                    ) : (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={popup.imageData}
+                        alt={popup.label}
+                        className="w-full h-full object-cover absolute inset-0"
+                      />
+                    )}
 
                     {popup.buttonText && popup.buttonUrl && (
-                      <div className="relative mt-auto p-3 flex justify-center bg-gradient-to-t from-black/70 to-transparent pt-10">
+                      <div className="relative z-10 mt-auto p-3 flex justify-center bg-gradient-to-t from-black/70 to-transparent pt-10">
                         <div className="border-2 border-white">
-                          <Button as="a" href={popup.buttonUrl} size="sm" target="_blank" rel="noopener noreferrer">
+                          <Button
+                            as="a"
+                            href={popup.buttonUrl}
+                            size="sm"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={() => trackEvent('popup_click', popup._id)}
+                          >
                             {popup.buttonText}
                           </Button>
                         </div>

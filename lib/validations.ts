@@ -170,3 +170,10 @@ export const popupUpdateSchema = popupBaseSchema
 
 export type PopupCreateInput = z.infer<typeof popupCreateSchema>;
 export type PopupUpdateInput = z.infer<typeof popupUpdateSchema>;
+
+export const analyticsEventSchema = z.object({
+  type: z.enum(['page_view', 'popup_click']),
+  popupId: z.string().optional(),
+});
+
+export type AnalyticsEventInput = z.infer<typeof analyticsEventSchema>;
