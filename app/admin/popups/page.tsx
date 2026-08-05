@@ -3,7 +3,10 @@
  *
  * Auth is enforced by proxy.ts via Basic Auth. Loads the current popup
  * list from MongoDB and hands it to the client-side manager, which owns
- * all create/edit/delete/show-hide interactivity.
+ * all create/edit/delete/show-hide interactivity. Site-wide page-view and
+ * day-by-day numbers live on /admin/analytics — this page keeps only the
+ * per-popup click count, since that's directly useful right where popups
+ * are managed.
  */
 import { connectToDatabase } from '@/lib/mongodb';
 import { Popup, type IPopup } from '@/models/Popup';
@@ -25,33 +28,25 @@ async function loadPopups(): Promise<{ popups: IPopup[]; loadError: string | nul
   }
 }
 
-async function loadAnalytics(): Promise<{ totalPageViews: number; clickCounts: Record<string, number> }> {
+async function loadClickCounts(): Promise<Record<string, number>> {
   try {
     await connectToDatabase();
-
-    const [totalPageViews, clickAgg] = await Promise.all([
-      AnalyticsEvent.countDocuments({ type: 'page_view' }),
-      AnalyticsEvent.aggregate([
-        { $match: { type: 'popup_click', popupId: { $ne: null } } },
-        { $group: { _id: '$popupId', count: { $sum: 1 } } },
-      ]),
+    const clickAgg = await AnalyticsEvent.aggregate([
+      { $match: { type: 'popup_click', popupId: { $ne: null } } },
+      { $group: { _id: '$popupId', count: { $sum: 1 } } },
     ]);
 
     const clickCounts: Record<string, number> = {};
     for (const row of clickAgg) clickCounts[String(row._id)] = row.count;
-
-    return { totalPageViews, clickCounts };
+    return clickCounts;
   } catch (err) {
-    console.error('[admin] failed to load analytics:', err);
-    return { totalPageViews: 0, clickCounts: {} };
+    console.error('[admin] failed to load click counts:', err);
+    return {};
   }
 }
 
 export default async function PopupsPage() {
-  const [{ popups, loadError }, { totalPageViews, clickCounts }] = await Promise.all([
-    loadPopups(),
-    loadAnalytics(),
-  ]);
+  const [{ popups, loadError }, clickCounts] = await Promise.all([loadPopups(), loadClickCounts()]);
 
   return (
     <div className="p-6 md:p-12">
@@ -68,13 +63,6 @@ export default async function PopupsPage() {
             Could not load popups from the database: {loadError}
           </div>
         )}
-
-        <div className="mb-6 bg-white border border-slate-200 rounded p-4 inline-block">
-          <div className="text-xs uppercase tracking-wide font-semibold text-slate-500">
-            Total page views
-          </div>
-          <div className="text-2xl font-serif text-slate-900">{totalPageViews.toLocaleString()}</div>
-        </div>
 
         <PopupManager initialPopups={JSON.parse(JSON.stringify(popups))} clickCounts={clickCounts} />
       </div>

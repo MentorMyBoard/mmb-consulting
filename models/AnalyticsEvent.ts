@@ -4,7 +4,7 @@
  */
 import mongoose, { Schema, type Model, type Document } from 'mongoose';
 
-export type AnalyticsEventType = 'page_view' | 'popup_click';
+export type AnalyticsEventType = 'page_view' | 'popup_click' | 'form_submit';
 
 export interface IAnalyticsEvent extends Document {
   type: AnalyticsEventType;
@@ -14,7 +14,7 @@ export interface IAnalyticsEvent extends Document {
 
 const AnalyticsEventSchema = new Schema<IAnalyticsEvent>(
   {
-    type: { type: String, enum: ['page_view', 'popup_click'], required: true, index: true },
+    type: { type: String, enum: ['page_view', 'popup_click', 'form_submit'], required: true, index: true },
     popupId: { type: Schema.Types.ObjectId, ref: 'Popup' },
   },
   { timestamps: { createdAt: true, updatedAt: false } },

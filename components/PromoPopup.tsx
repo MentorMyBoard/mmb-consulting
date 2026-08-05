@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Button } from '@/components/ui/Button';
 import type { PopupDTO, PopupPosition } from '@/lib/types';
@@ -35,28 +35,12 @@ const POSITIONS: PopupPosition[] = [
   'center-bottom',
 ];
 
-export default function PromoPopup() {
-  const [popups, setPopups] = useState<PopupDTO[]>([]);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    // No dismissal persistence by design — every fresh page load (including a
-    // reload right after closing one) should show active popups again.
-    fetch('/api/popups')
-      .then((res) => res.json())
-      .then((json) => {
-        if (cancelled || !json.ok) return;
-        setPopups(json.popups as PopupDTO[]);
-      })
-      .catch(() => {
-        // Silently no-op — a failed fetch just means no promo popups this visit.
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+export default function PromoPopup({ initialPopups }: { initialPopups: PopupDTO[] }) {
+  // Server-rendered, no client fetch — popups are visible on first paint.
+  // No dismissal persistence by design — every fresh page load (including a
+  // reload right after closing one) re-seeds from initialPopups and shows
+  // active popups again.
+  const [popups, setPopups] = useState<PopupDTO[]>(initialPopups);
 
   function dismiss(id: string) {
     setPopups((prev) => prev.filter((p) => p._id !== id));

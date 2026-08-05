@@ -22,6 +22,7 @@ import { rateLimit, getClientIp } from '@/lib/rate-limit';
 import { verifyTurnstile } from '@/lib/turnstile';
 import { connectToDatabase } from '@/lib/mongodb';
 import { Contact } from '@/models/Contact';
+import { AnalyticsEvent } from '@/models/AnalyticsEvent';
 import { sendContactEmails } from '@/lib/email';
 import { pushContactToZoho } from '@/lib/zoho';
 
@@ -93,6 +94,13 @@ export async function POST(req: NextRequest) {
     let savedSubmission: any = null;
     try {
       await connectToDatabase();
+
+      // Fire-and-forget — a genuine (non-honeypot, validated) submission
+      // attempt, regardless of what happens downstream (email, Zoho, etc.).
+      AnalyticsEvent.create({ type: 'form_submit' }).catch((e) =>
+        console.error('[contact] analytics track failed:', e),
+      );
+
       savedSubmission = await Contact.create({
         ...clean,
         ipAddress: ip,

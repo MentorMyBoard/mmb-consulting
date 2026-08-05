@@ -17,6 +17,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <Link href="/admin/popups" className="hover:text-white transition-colors">
               Popups
             </Link>
+            <Link href="/admin/analytics" className="hover:text-white transition-colors">
+              Analytics
+            </Link>
           </div>
         </div>
       </nav>

@@ -6,6 +6,7 @@
  * DELETE — remove a popup.
  */
 import { NextResponse, type NextRequest } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { isValidObjectId } from 'mongoose';
 import { ZodError } from 'zod';
 import { popupUpdateSchema } from '@/lib/validations';
@@ -48,6 +49,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       return NextResponse.json({ ok: false, error: 'Popup not found.' }, { status: 404 });
     }
 
+    revalidatePath('/');
+
     return NextResponse.json({ ok: true, popup }, { status: 200 });
   } catch (err) {
     if (err instanceof ZodError) {
@@ -78,6 +81,8 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
     if (!popup) {
       return NextResponse.json({ ok: false, error: 'Popup not found.' }, { status: 404 });
     }
+
+    revalidatePath('/');
 
     return NextResponse.json({ ok: true }, { status: 200 });
   } catch (err) {

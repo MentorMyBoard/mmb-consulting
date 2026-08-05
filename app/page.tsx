@@ -11,11 +11,21 @@ import Contact from '@/components/Contact';
 import ExploreMMB from '@/components/ExploreMMB';
 import Footer from '@/components/Footer';
 import { ClientComponents } from '@/components/ClientComponents';
+import { getActivePopups } from '@/lib/popups';
 
-export default function Home() {
+// Popups are embedded server-side so they appear the instant the page paints
+// — no client fetch round-trip. The page stays effectively static (served
+// from cache); `revalidatePath('/')` in the admin popup routes invalidates
+// this cache the moment an admin actually changes something, and this
+// interval is just a safety-net backstop.
+export const revalidate = 60;
+
+export default async function Home() {
+  const popups = await getActivePopups();
+
   return (
     <div className="bg-surface text-on-surface font-sans selection:bg-secondary-fixed selection:text-on-secondary-fixed relative overflow-hidden">
-      <ClientComponents />
+      <ClientComponents initialPopups={popups} />
 
       {/* Subtle grain overlay for premium texture */}
       <div

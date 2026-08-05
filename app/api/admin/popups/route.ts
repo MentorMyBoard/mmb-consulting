@@ -6,6 +6,7 @@
  * POST — create a new popup.
  */
 import { NextResponse, type NextRequest } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { ZodError } from 'zod';
 import { popupCreateSchema } from '@/lib/validations';
 import { connectToDatabase } from '@/lib/mongodb';
@@ -44,6 +45,11 @@ export async function POST(req: NextRequest) {
       buttonText: parsed.buttonText || undefined,
       buttonUrl: parsed.buttonUrl || undefined,
     });
+
+    // The homepage embeds active popups at render time and is ISR-cached —
+    // invalidate that cache now so this change is live immediately instead
+    // of waiting for the periodic revalidation.
+    revalidatePath('/');
 
     return NextResponse.json({ ok: true, popup }, { status: 201 });
   } catch (err) {
