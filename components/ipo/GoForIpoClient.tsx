@@ -1,18 +1,30 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useState } from 'react';
 import { IPO_STYLES, IPO_MARKUP, IPO_RUNTIME_FN_SRC, IPO_DATA } from './ipoPageContent';
 import { LeadCaptureModal } from './LeadCaptureModal';
 import { ConsultNowModal } from './ConsultNowModal';
 
 const ROOT_ID = 'mmb-ipo-primer';
 
-export function GoForIpoClient({ consultNowUrl, logoUrl }: { consultNowUrl: string; logoUrl: string }) {
-  const [showLead, setShowLead] = useState(false);
-  const [showCta, setShowCta] = useState(false);
-  const leadShownRef = useRef(false);
-  const ctaShownRef = useRef(false);
-
+/**
+ * Hosts the injected widget markup/script in its own memoized component so
+ * it NEVER re-renders after mount. The widget's runtime script builds the
+ * quiz/self-check/etc. content imperatively, outside React — if this
+ * component re-rendered (e.g. because a sibling popup's visibility state
+ * changed), React would reset the dangerouslySetInnerHTML div back to its
+ * pristine (empty-widget) markup and silently wipe out everything the
+ * script had built, which is exactly what was happening before this split.
+ */
+const IpoWidget = memo(function IpoWidget({
+  logoUrl,
+  onFirstQuizAnswer,
+  onQuizComplete,
+}: {
+  logoUrl: string;
+  onFirstQuizAnswer: () => void;
+  onQuizComplete: () => void;
+}) {
   useEffect(() => {
     // Real MMB logo on the dark cover; the footer slot (light background)
     // intentionally keeps the runtime's own navy fallback mark instead of
@@ -22,6 +34,9 @@ export function GoForIpoClient({ consultNowUrl, logoUrl }: { consultNowUrl: stri
     const script = document.createElement('script');
     script.textContent = `${IPO_RUNTIME_FN_SRC}\nmmbRuntime(document.getElementById(${JSON.stringify(ROOT_ID)}), ${JSON.stringify(data)});`;
     document.body.appendChild(script);
+
+    let leadShown = false;
+    let ctaShown = false;
 
     function countAnsweredQuizQuestions(): { answered: number; total: number } {
       const root = document.getElementById(ROOT_ID);
@@ -40,20 +55,20 @@ export function GoForIpoClient({ consultNowUrl, logoUrl }: { consultNowUrl: stri
       const quizAnswerBtn = target.closest('[data-widget="quiz"] .kp-choices button');
       if (!quizAnswerBtn) return;
 
-      if (!leadShownRef.current) {
-        leadShownRef.current = true;
-        setShowLead(true);
+      if (!leadShown) {
+        leadShown = true;
+        onFirstQuizAnswer();
       }
 
       // Defer slightly: the runtime's own click handler (bound directly to
       // this same button) runs first and sets `disabled` synchronously, but
       // this small delay is a harmless safety margin either way.
       setTimeout(() => {
-        if (ctaShownRef.current) return;
+        if (ctaShown) return;
         const { answered, total } = countAnsweredQuizQuestions();
         if (total > 0 && answered === total) {
-          ctaShownRef.current = true;
-          setShowCta(true);
+          ctaShown = true;
+          onQuizComplete();
         }
       }, 0);
     }
@@ -63,6 +78,8 @@ export function GoForIpoClient({ consultNowUrl, logoUrl }: { consultNowUrl: stri
       document.removeEventListener('click', onClick);
       script.remove();
     };
+    // Intentionally mount-once: re-running this would re-inject the script
+    // and rebuild every widget from scratch.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -70,8 +87,29 @@ export function GoForIpoClient({ consultNowUrl, logoUrl }: { consultNowUrl: stri
     <>
       <style dangerouslySetInnerHTML={{ __html: IPO_STYLES }} />
       <div dangerouslySetInnerHTML={{ __html: IPO_MARKUP }} />
-      {showLead && <LeadCaptureModal onClose={() => setShowLead(false)} />}
-      {showCta && <ConsultNowModal consultNowUrl={consultNowUrl} onClose={() => setShowCta(false)} />}
+    </>
+  );
+});
+
+export function GoForIpoClient({ consultNowUrl, logoUrl }: { consultNowUrl: string; logoUrl: string }) {
+  const [showLead, setShowLead] = useState(false);
+  const [showCta, setShowCta] = useState(false);
+
+  // Stable references so IpoWidget's memoization actually holds.
+  const handleFirstQuizAnswer = useCallback(() => setShowLead(true), []);
+  const handleQuizComplete = useCallback(() => setShowCta(true), []);
+  const closeLead = useCallback(() => setShowLead(false), []);
+  const closeCta = useCallback(() => setShowCta(false), []);
+
+  return (
+    <>
+      <IpoWidget
+        logoUrl={logoUrl}
+        onFirstQuizAnswer={handleFirstQuizAnswer}
+        onQuizComplete={handleQuizComplete}
+      />
+      {showLead && <LeadCaptureModal onClose={closeLead} />}
+      {showCta && <ConsultNowModal consultNowUrl={consultNowUrl} onClose={closeCta} />}
     </>
   );
 }
