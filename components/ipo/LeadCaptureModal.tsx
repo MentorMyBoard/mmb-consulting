@@ -11,7 +11,13 @@ type FormState = {
   role: string;
 };
 
-export function LeadCaptureModal({ onClose }: { onClose: () => void }) {
+export function LeadCaptureModal({
+  onClose,
+  onSubmitted,
+}: {
+  onClose: () => void;
+  onSubmitted: () => void;
+}) {
   const [form, setForm] = useState<FormState>({ name: '', email: '', phone: '', company: '', role: '' });
   const [errors, setErrors] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
@@ -40,6 +46,7 @@ export function LeadCaptureModal({ onClose }: { onClose: () => void }) {
         return;
       }
       setDone(true);
+      onSubmitted();
     } catch {
       setErrors(['Network error — please try again.']);
     } finally {
@@ -78,7 +85,8 @@ export function LeadCaptureModal({ onClose }: { onClose: () => void }) {
           <form onSubmit={handleSubmit}>
             <h3 className="font-serif text-2xl text-slate-900 mb-1">Before you continue</h3>
             <p className="text-slate-600 text-sm mb-5">
-              Tell us a little about yourself so we can follow up on your IPO readiness journey.
+              Share your details to unlock the quiz — so we can follow up on your IPO readiness
+              journey.
             </p>
 
             {errors.length > 0 && (

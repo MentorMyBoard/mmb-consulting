@@ -1,6 +1,6 @@
 'use client';
 
-import { memo, useCallback, useEffect, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { IPO_STYLES, IPO_MARKUP, IPO_RUNTIME_FN_SRC, IPO_DATA } from './ipoPageContent';
 import { LeadCaptureModal } from './LeadCaptureModal';
 import { ConsultNowModal } from './ConsultNowModal';
@@ -18,11 +18,13 @@ const ROOT_ID = 'mmb-ipo-primer';
  */
 const IpoWidget = memo(function IpoWidget({
   logoUrl,
-  onFirstQuizAnswer,
+  leadSubmittedRef,
+  onNeedLead,
   onQuizComplete,
 }: {
   logoUrl: string;
-  onFirstQuizAnswer: () => void;
+  leadSubmittedRef: React.RefObject<boolean>;
+  onNeedLead: () => void;
   onQuizComplete: () => void;
 }) {
   useEffect(() => {
@@ -35,7 +37,6 @@ const IpoWidget = memo(function IpoWidget({
     script.textContent = `${IPO_RUNTIME_FN_SRC}\nmmbRuntime(document.getElementById(${JSON.stringify(ROOT_ID)}), ${JSON.stringify(data)});`;
     document.body.appendChild(script);
 
-    let leadShown = false;
     let ctaShown = false;
 
     function countAnsweredQuizQuestions(): { answered: number; total: number } {
@@ -50,21 +51,26 @@ const IpoWidget = memo(function IpoWidget({
       return { answered, total: questions.length };
     }
 
-    function onClick(e: MouseEvent) {
+    // Capture phase, so this runs BEFORE the runtime's own click handler
+    // (bound directly on each answer button, which only fires in the
+    // bubble/target phase). Until a lead is submitted, every quiz-answer
+    // click is intercepted and blocked outright — the runtime never sees
+    // it, so no answer gets registered — and the lead popup is (re)shown
+    // instead. Only after a successful submission do clicks pass through.
+    function onClickCapture(e: MouseEvent) {
       const target = e.target as HTMLElement;
       const quizAnswerBtn = target.closest('[data-widget="quiz"] .kp-choices button');
       if (!quizAnswerBtn) return;
 
-      if (!leadShown) {
-        leadShown = true;
-        onFirstQuizAnswer();
+      if (!leadSubmittedRef.current) {
+        e.preventDefault();
+        e.stopPropagation();
+        onNeedLead();
+        return;
       }
 
-      // Defer slightly: the runtime's own click handler (bound directly to
-      // this same button) runs first and sets `disabled` synchronously, but
-      // this small delay is a harmless safety margin either way.
+      if (ctaShown) return;
       setTimeout(() => {
-        if (ctaShown) return;
         const { answered, total } = countAnsweredQuizQuestions();
         if (total > 0 && answered === total) {
           ctaShown = true;
@@ -73,13 +79,14 @@ const IpoWidget = memo(function IpoWidget({
       }, 0);
     }
 
-    document.addEventListener('click', onClick);
+    document.addEventListener('click', onClickCapture, true);
     return () => {
-      document.removeEventListener('click', onClick);
+      document.removeEventListener('click', onClickCapture, true);
       script.remove();
     };
     // Intentionally mount-once: re-running this would re-inject the script
-    // and rebuild every widget from scratch.
+    // and rebuild every widget from scratch. leadSubmittedRef is a ref, so
+    // its latest value is read on every click without needing to be a dep.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -94,21 +101,26 @@ const IpoWidget = memo(function IpoWidget({
 export function GoForIpoClient({ consultNowUrl, logoUrl }: { consultNowUrl: string; logoUrl: string }) {
   const [showLead, setShowLead] = useState(false);
   const [showCta, setShowCta] = useState(false);
+  const leadSubmittedRef = useRef(false);
 
   // Stable references so IpoWidget's memoization actually holds.
-  const handleFirstQuizAnswer = useCallback(() => setShowLead(true), []);
+  const handleNeedLead = useCallback(() => setShowLead(true), []);
   const handleQuizComplete = useCallback(() => setShowCta(true), []);
   const closeLead = useCallback(() => setShowLead(false), []);
   const closeCta = useCallback(() => setShowCta(false), []);
+  const handleLeadSubmitted = useCallback(() => {
+    leadSubmittedRef.current = true;
+  }, []);
 
   return (
     <>
       <IpoWidget
         logoUrl={logoUrl}
-        onFirstQuizAnswer={handleFirstQuizAnswer}
+        leadSubmittedRef={leadSubmittedRef}
+        onNeedLead={handleNeedLead}
         onQuizComplete={handleQuizComplete}
       />
-      {showLead && <LeadCaptureModal onClose={closeLead} />}
+      {showLead && <LeadCaptureModal onClose={closeLead} onSubmitted={handleLeadSubmitted} />}
       {showCta && <ConsultNowModal consultNowUrl={consultNowUrl} onClose={closeCta} />}
     </>
   );
