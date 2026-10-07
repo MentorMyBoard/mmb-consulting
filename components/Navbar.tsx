@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Link from 'next/link';
 import { siteConfig } from '@/content/site';
 import { Logo } from '@/components/Logo';
 
@@ -66,12 +67,12 @@ export default function Navbar({ forceSolid = false }: { forceSolid?: boolean })
           </nav>
 
           <div className="flex items-center gap-3">
-            <a
-              href="#contact"
+            <Link
+              href="/#contact"
               className="hidden md:inline-block px-6 md:px-8 py-3 text-xs md:text-sm uppercase tracking-[0.15em] bg-secondary text-primary font-semibold hover:bg-white hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300"
             >
               Inquire
-            </a>
+            </Link>
 
             <button
               onClick={() => setMenuOpen((o) => !o)}
@@ -136,13 +137,13 @@ export default function Navbar({ forceSolid = false }: { forceSolid?: boolean })
               transition={{ delay: 0.5, duration: 0.4 }}
               className="relative mt-12 border-t border-secondary/20 pt-10 space-y-4"
             >
-              <a
-                href="#contact"
+              <Link
+                href="/#contact"
                 onClick={closeMenu}
                 className="inline-block bg-secondary text-primary px-8 py-4 text-sm uppercase tracking-[0.15em] font-semibold hover:bg-white transition-all duration-300"
               >
                 Inquire Now
-              </a>
+              </Link>
               <p className="text-primary-fixed-dim text-sm font-light">{siteConfig.contact.email}</p>
             </motion.div>
           </motion.div>

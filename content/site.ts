@@ -28,26 +28,30 @@ export const siteConfig = {
     twitter: 'https://twitter.com/mentormyboard',
   },
 
+  // Note: these point at section IDs on the homepage. Navbar/Footer are now
+  // shared across multiple pages (e.g. /go-for-ipo), so they're prefixed
+  // with "/" — "/#about" navigates to the homepage and scrolls there from
+  // any page, and still just scrolls when already on the homepage.
   navigation: [
-    { label: 'About', href: '#about' },
-    { label: 'Services', href: '#services' },
-    { label: 'Leadership', href: '#leadership' },
-    { label: 'Advisory', href: '#advisory' },
-    { label: 'Contact', href: '#contact' },
+    { label: 'About', href: '/#about' },
+    { label: 'Services', href: '/#services' },
+    { label: 'Leadership', href: '/#leadership' },
+    { label: 'Advisory', href: '/#advisory' },
+    { label: 'Contact', href: '/#contact' },
     { label: 'Go for IPO', href: '/go-for-ipo' },
-    { label: 'Explore MMB', href: '#explore-mmb' },
+    { label: 'Explore MMB', href: '/#explore-mmb' },
   ],
 
   footer: {
     services: [
-      { label: 'Board Advisory', href: '#services' },
-      { label: 'IPO Readiness', href: '#services' },
-      { label: 'ESG Compliance', href: '#services' },
+      { label: 'Board Advisory', href: '/#services' },
+      { label: 'IPO Readiness', href: '/#services' },
+      { label: 'ESG Compliance', href: '/#services' },
     ],
     company: [
       { label: 'About MMB', href: 'https://mentormyboard.com' },
-      { label: 'Leadership', href: '#leadership' },
-      { label: 'Contact', href: '#contact' },
+      { label: 'Leadership', href: '/#leadership' },
+      { label: 'Contact', href: '/#contact' },
       { label: 'Privacy Policy', href: 'https://mentormyboard.com/privacy-policy' },
       { label: 'Terms & Conditions', href: 'https://mentormyboard.com/terms-and-condition' },
     ],
