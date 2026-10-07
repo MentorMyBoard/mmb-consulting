@@ -34,6 +34,7 @@ export const siteConfig = {
     { label: 'Leadership', href: '#leadership' },
     { label: 'Advisory', href: '#advisory' },
     { label: 'Contact', href: '#contact' },
+    { label: 'Go for IPO', href: '/go-for-ipo' },
     { label: 'Explore MMB', href: '#explore-mmb' },
   ],
 

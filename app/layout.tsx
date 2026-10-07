@@ -4,6 +4,7 @@ import { Toaster } from 'sonner';
 import { siteConfig } from '@/content/site';
 import SmoothScroll from '@/components/SmoothScroll';
 import ScrollProgress from '@/components/ScrollProgress';
+import AnalyticsTracker from '@/components/AnalyticsTracker';
 import './globals.css';
 
 const inter = Inter({
@@ -136,6 +137,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <ScrollProgress />
           {children}
         </SmoothScroll>
+        <AnalyticsTracker />
         <Toaster
           position="top-right"
           richColors

@@ -51,6 +51,12 @@ export default function Hero() {
             >
               Book Consultation
             </a>
+            <a
+              href="/go-for-ipo"
+              className="border border-secondary text-secondary px-10 py-4 text-sm uppercase tracking-[0.15em] hover:bg-secondary/10 backdrop-blur-sm transition-all duration-300"
+            >
+              Go for IPO
+            </a>
           </motion.div>
         </motion.div>
 

@@ -37,6 +37,7 @@ export async function POST(req: NextRequest) {
     await AnalyticsEvent.create({
       type: parsed.type,
       popupId: parsed.popupId || undefined,
+      path: parsed.path || undefined,
     });
 
     return NextResponse.json({ ok: true }, { status: 201 });

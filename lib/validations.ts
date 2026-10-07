@@ -174,6 +174,45 @@ export type PopupUpdateInput = z.infer<typeof popupUpdateSchema>;
 export const analyticsEventSchema = z.object({
   type: z.enum(['page_view', 'popup_click', 'form_submit']),
   popupId: z.string().optional(),
+  path: z.string().trim().max(200).optional(),
 });
 
 export type AnalyticsEventInput = z.infer<typeof analyticsEventSchema>;
+
+export const ipoLeadSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(2, 'Name must be at least 2 characters')
+    .max(100, 'Name is too long')
+    .regex(/^[\p{L}\s.'-]+$/u, 'Name contains invalid characters'),
+
+  email: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .email('Please enter a valid email address')
+    .max(254, 'Email is too long'),
+
+  phone: z
+    .string()
+    .trim()
+    .min(7, 'Please enter a valid phone number')
+    .max(20, 'Phone number is too long')
+    .regex(/^[+]?[\d\s\-()]{7,20}$/, 'Please enter a valid phone number'),
+
+  company: z.string().trim().max(200, 'Company name is too long').optional().or(z.literal('')),
+  role: z.string().trim().max(100, 'Role is too long').optional().or(z.literal('')),
+});
+
+export type IpoLeadInput = z.infer<typeof ipoLeadSchema>;
+
+export const ipoSettingsSchema = z.object({
+  consultNowUrl: z
+    .string()
+    .trim()
+    .max(500, 'URL is too long')
+    .refine((val) => val === '' || /^https?:\/\//i.test(val), 'URL must start with http:// or https://'),
+});
+
+export type IpoSettingsInput = z.infer<typeof ipoSettingsSchema>;
