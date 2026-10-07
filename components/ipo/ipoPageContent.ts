@@ -329,14 +329,6 @@ export const IPO_MARKUP = `
     </div>
 
     <nav class="kp-next" aria-label="Series navigation"><p>Next in the series</p><a href="#">Why Companies Go Public (and Why Some Shouldn't)</a></nav>
-
-    <p class="kp-tagline">Understand the Offer.<br>Read the Board. Invest with Clarity.</p>
-    <div class="kp-contact">
-      <div><span class="lab">Address:</span><div data-bind="address"></div></div>
-      <div><span class="lab">Reach Us:</span><div data-bind="email"></div><div data-bind="phone"></div></div>
-    </div>
-    <div class="kp-foot"><span data-slot="logo" data-variant="dark"></span><span data-bind="website"></span></div>
-    <p class="kp-disclaimer">This article is for educational purposes only and does not constitute investment advice or a recommendation to buy or sell any security. Please consult a SEBI-registered investment adviser before making investment decisions. © MentorMyBoard.</p>
   </article>
 </div>
 `;

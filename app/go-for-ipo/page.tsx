@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
 import { getConsultNowUrl } from '@/lib/ipoSettings';
 import { GoForIpoClient } from '@/components/ipo/GoForIpoClient';
 
@@ -31,6 +32,7 @@ export default async function GoForIpoPage() {
       <div className="pt-20 md:pt-24">
         <GoForIpoClient consultNowUrl={consultNowUrl} logoUrl="/logo.png" />
       </div>
+      <Footer />
     </>
   );
 }
