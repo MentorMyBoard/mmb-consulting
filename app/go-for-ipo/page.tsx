@@ -27,7 +27,7 @@ export default async function GoForIpoPage() {
         rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=Source+Sans+3:wght@300;400;600;700&display=swap"
       />
-      <Navbar />
+      <Navbar forceSolid />
       {/* Clears the fixed Navbar so it doesn't overlap the widget's own cover/logo */}
       <div className="pt-20 md:pt-24">
         <GoForIpoClient consultNowUrl={consultNowUrl} logoUrl="/logo.png" />

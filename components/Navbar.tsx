@@ -5,9 +5,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { siteConfig } from '@/content/site';
 import { Logo } from '@/components/Logo';
 
-export default function Navbar() {
+export default function Navbar({ forceSolid = false }: { forceSolid?: boolean }) {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const isSolid = forceSolid || scrolled;
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -30,7 +31,7 @@ export default function Navbar() {
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
         className={`fixed top-0 w-full z-50 transition-all duration-500 ${
-          scrolled
+          isSolid
             ? 'bg-primary/95 backdrop-blur-xl border-b border-white/10 py-3 shadow-lg'
             : 'bg-transparent py-6'
         }`}
