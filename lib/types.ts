@@ -17,3 +17,14 @@ export interface PopupDTO {
   createdAt: string;
   updatedAt: string;
 }
+
+/** Client-side shape of an IpoLead document after JSON serialization. */
+export interface IpoLeadDTO {
+  _id: string;
+  name: string;
+  email: string;
+  phone: string;
+  company?: string;
+  role?: string;
+  createdAt: string;
+}
